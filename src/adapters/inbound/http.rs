@@ -36,6 +36,7 @@ where
         Router::new()
             .route("/", post(Self::shorten))
             .route("/{id}", get(Self::resolve))
+            .route("/api/urls/{id}", get(Self::get_info))
             .with_state(self.state)
     }
 
@@ -55,6 +56,16 @@ where
     ) -> impl IntoResponse {
         match state.service.resolve(&id).await {
             Ok(dest) => Redirect::temporary(&dest).into_response(),
+            Err(_) => StatusCode::NOT_FOUND.into_response(),
+        }
+    }
+
+    async fn get_info(
+        State(state): State<AppState<S>>,
+        Path(id): Path<String>,
+    ) -> impl IntoResponse {
+        match state.service.info(&id).await {
+            Ok(short) => (StatusCode::OK, Json(short)).into_response(),
             Err(_) => StatusCode::NOT_FOUND.into_response(),
         }
     }

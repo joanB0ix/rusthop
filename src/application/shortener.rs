@@ -36,4 +36,15 @@ impl<R: UrlRepository> ShortenerService<R> {
         self.repo.increment_hit(id).await?;
         Ok(url.original)
     }
+
+    pub async fn info(&self, id: &str) -> Result<ShortUrl, RepoError> {
+        let url = self.repo.find(id).await?;
+
+        if url.is_expired() {
+            self.repo.delete(id).await.ok();
+            return Err(RepoError::NotFound);
+        }
+
+        Ok(url)
+    }
 }
