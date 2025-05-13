@@ -50,7 +50,21 @@ cargo build --no-default-features
     ```
 * **GET** `/{id}`
     
-    Redirects (`302`) to the original URL or returns `404` if the link does not exist or has expired.
+    Redirects (`307`) to the original URL or returns `404` if the link does not exist or has expired.
+
+* **GET** `/api/url/{id}`
+    
+    Returns (`200`) the url object saved in the backend.
+
+    ```json
+    {
+        "id": "A1b2C3d4",
+        "original": "https://example.com",
+        "created_at": "...",
+        "expires_at": "...",
+        "hits": 0
+    }
+    ```
 
 ## License
 
