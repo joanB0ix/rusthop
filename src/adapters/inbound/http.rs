@@ -35,7 +35,7 @@ where
     pub fn router(self) -> Router {
         Router::new()
             .route("/", post(Self::shorten))
-            .route("/:id", get(Self::resolve))
+            .route("/{id}", get(Self::resolve))
             .with_state(self.state)
     }
 
