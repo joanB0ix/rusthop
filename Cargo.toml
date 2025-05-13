@@ -16,6 +16,11 @@ async-trait = "0.1.88"
 anyhow = "1.0.98"
 nanoid = "0.4"
 dashmap = { version = "6.1.0", optional = true }
+axum = { version = "0.8.4", features = ["macros", "json"] }
+clap = { version = "4.5.38", features = ["derive", "env"] }
+tracing = "0.1.41"
+tracing-subscriber = { version = "0.3.19", features = ["fmt", "env-filter"] }
+tokio = { version = "1.45", features = ["full"] }
 
 [features]
 default = ["memory"]
