@@ -30,7 +30,9 @@ impl UrlRepository for InMemoryRepo {
     }
 
     async fn increment_hit(&self, id: &str) -> Result<(), RepoError> {
-        self.map.get_mut(id).map(|mut e| e.hits += 1);
+        if let Some(mut entry) = self.map.get_mut(id) {
+            entry.hits += 1;
+        }
         Ok(())
     }
 

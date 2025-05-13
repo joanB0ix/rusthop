@@ -5,11 +5,9 @@ use tokio::net::TcpListener;
 use tracing_subscriber::{EnvFilter, fmt};
 
 use rusthop::{
-    application::ShortenerService, http::HttpServer, id::NanoIdGenerator, ports::UrlRepository,
+    adapters::inbound::http::HttpServer, adapters::outbound::in_memory::InMemoryRepo,
+    application::ShortenerService, ports::UrlRepository, shared::id::NanoIdGenerator,
 };
-
-#[cfg(feature = "memory")]
-use rusthop::infra_memory::InMemoryRepo;
 
 #[derive(Parser, Debug)]
 #[command(version, about)]
@@ -29,7 +27,6 @@ enum Backend {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
-
     fmt().with_env_filter(EnvFilter::from_default_env()).init();
 
     match args.backend {
@@ -37,7 +34,7 @@ async fn main() -> anyhow::Result<()> {
             #[cfg(feature = "memory")]
             {
                 let repo = InMemoryRepo::default();
-                start(repo, args.listen).await;
+                start_server(repo, args.listen).await;
             }
             #[cfg(not(feature = "memory"))]
             panic!("compiled without `memory` feature");
@@ -46,14 +43,13 @@ async fn main() -> anyhow::Result<()> {
     Ok(())
 }
 
-async fn start<R: UrlRepository + Clone + Send + Sync + 'static>(
-    repo: R,
-    listen: std::net::SocketAddr,
-) {
+async fn start_server<R>(repo: R, listen: std::net::SocketAddr)
+where
+    R: UrlRepository + Clone + Send + Sync + 'static,
+{
     let generator = Arc::new(NanoIdGenerator);
     let svc = ShortenerService::new(repo, generator);
-    let server = HttpServer::new(svc);
-    let router = server.router();
+    let router = HttpServer::new(svc).router();
 
     tracing::info!(%listen, "Listening");
 

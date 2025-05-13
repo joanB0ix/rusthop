@@ -35,13 +35,13 @@ where
     pub fn router(self) -> Router {
         Router::new()
             .route("/", post(Self::shorten))
-            .route("/{id}", get(Self::resolve))
+            .route("/:id", get(Self::resolve))
             .with_state(self.state)
     }
 
     async fn shorten(
         State(state): State<AppState<S>>,
-        Json(body): Json<ShortenPayload>,
+        Json(body): Json<ShortenRequest>,
     ) -> impl IntoResponse {
         match state.service.shorten(body.url, body.ttl_secs).await {
             Ok(short) => (StatusCode::CREATED, Json(short)).into_response(),
@@ -54,14 +54,14 @@ where
         Path(id): Path<String>,
     ) -> impl IntoResponse {
         match state.service.resolve(&id).await {
-            Ok(orig) => Redirect::temporary(&orig).into_response(),
+            Ok(dest) => Redirect::temporary(&dest).into_response(),
             Err(_) => StatusCode::NOT_FOUND.into_response(),
         }
     }
 }
 
 #[derive(Deserialize)]
-struct ShortenPayload {
+struct ShortenRequest {
     url: String,
     ttl_secs: u64,
 }
