@@ -6,7 +6,6 @@ use crate::{
     shared::id::IdGenerator,
 };
 
-/// Inbound port – use‑case façade consumed by adapters
 pub struct ShortenerService<R: UrlRepository> {
     repo: R,
     generator: Arc<dyn IdGenerator>,

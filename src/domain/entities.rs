@@ -5,7 +5,6 @@ use super::errors::UrlError;
 
 pub const MAX_TTL_SECS: u64 = 3600;
 
-/// Core aggregate representing a short‑link
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ShortUrl {
     pub id: String,
